@@ -4,20 +4,20 @@ import requests
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from random import randint
+import shutil
 
-def creating_folders(names: list):
-    if not os.path.isdir(names[0]) and not os.path.isdir(names[1]):
-        os.makedirs(names[0])
-        os.makedirs(names[1])
+def creating_folders(name: str):
+    if not os.path.isdir(name):
+        os.mkdir(name)
 
 def download_images(links: list, name: str):
-    os.chdir(name)
+    creating_folders(f"dataset/{name}")
+    count = 0
     for link in links:
         response = requests.get(link).content
-        with open(f'image{randint(0,100)}.jpg', "wb") as f:
-           f.write(response)
+        with open(f'dataset/{name}/{str(count).zfill(4)}.jpg', "wb") as f:
+            f.write(response)
+        count = count+1
 
 def get_images(name: str) -> list:
     url = f"https://yandex.ru/images/search?text={name}"
@@ -27,7 +27,7 @@ def get_images(name: str) -> list:
     driver.find_element(By.CSS_SELECTOR, 'div.serp-item__preview a.serp-item__link').click()
     elem1 = driver.find_element(By.CLASS_NAME, "MMImage-Origin").get_attribute('src')
     list = [elem1]
-    for i in range(10):
+    for i in range(2):
             try:
                 time.sleep(2)
                 button = driver.find_element(By.CLASS_NAME, "MediaViewer_theme_fiji-ButtonNext").click()                
@@ -36,17 +36,13 @@ def get_images(name: str) -> list:
             except:
                 continue
     driver.close()
+    return list
 
 def main() -> None:
     name1, name2 = "rose", "tulip"
-    if not os.path.isdir("dataset"):
-        os.mkdir("dataset")
-    os.chdir("dataset")
-    creating_folders((name1, name2))
+    creating_folders("dataset")
     download_images(get_images(name1), name1)
-
-    #print(list)
-    #print("Текущая директория изменилась на folder:", os.getcwd())
-
+    download_images(get_images(name2), name2)
+    
 if __name__ == "__main__":
     main()
