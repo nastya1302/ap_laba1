@@ -5,14 +5,21 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from random import randint
 
 def creating_folders(names: list):
     if not os.path.isdir(names[0]) and not os.path.isdir(names[1]):
         os.makedirs(names[0])
         os.makedirs(names[1])
 
-def get_images(name: str) -> list:
+def download_images(links: list, name: str):
     os.chdir(name)
+    for link in links:
+        response = requests.get(link).content
+        with open(f'image{randint(0,100)}.jpg', "wb") as f:
+           f.write(response)
+
+def get_images(name: str) -> list:
     url = f"https://yandex.ru/images/search?text={name}"
     driver = webdriver.Chrome(ChromeDriverManager().install())
     driver.get(url)
@@ -28,7 +35,6 @@ def get_images(name: str) -> list:
                 list.append(link)
             except:
                 continue
-    print(list)
     driver.close()
 
 def main() -> None:
@@ -37,7 +43,8 @@ def main() -> None:
         os.mkdir("dataset")
     os.chdir("dataset")
     creating_folders((name1, name2))
-    list = get_images(name1)
+    download_images(get_images(name1), name1)
+
     #print(list)
     #print("Текущая директория изменилась на folder:", os.getcwd())
 
