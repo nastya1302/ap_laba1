@@ -22,7 +22,7 @@ def download_images(links: List[str], name: str) -> None:
     A directory with the name of the class is created and, going through the list, 
     it downloads images and saves them in the specified directory.
     """
-    creating_folders(f"dataset/{name}")
+    creating_folders(os.path.join('dataset', name))
     count:int = 0
     page:str = ''
     for link in links:
@@ -30,7 +30,7 @@ def download_images(links: List[str], name: str) -> None:
             try:
                 sleep(5)
                 response = requests.get(link, verify=False).content
-                with open(os.path.join('dataset',name,str(count).zfill(4),'.jpg'), "wb") as f:
+                with open(os.path.join('dataset', name, f'{str(count).zfill(4)}.jpg'), "wb") as f:
                     f.write(response)
                 count+=1
                 break
